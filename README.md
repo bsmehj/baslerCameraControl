@@ -5,4 +5,6 @@
 2、需要到basler官网上下载需要的工业相机配套软件
 3、开发IDE VS2017
 
+// 添加引用
+C:\Program Files\Basler\pylon 6\Development\Assemblies\Basler.Pylon\x64
 
