@@ -469,7 +469,6 @@ namespace BaslerCameraCtrl.BaslerCamera
         public void SendSoftwareExecute()
         {
             try {
-            try {
                 if (baslerCamera.WaitForFrameTriggerReady(1000, TimeoutHandling.ThrowException)) {
                     baslerCamera.ExecuteSoftwareTrigger();
                     stopWatch.Restart();    // ****  重启采集时间计时器   ****
