@@ -323,175 +323,57 @@ namespace BaslerCameraCtrl.BaslerCamera
         /// <param name="value"></param>
         public void SetGain(long value)
         {
-            try
-            {
+            try {
                 // Some camera models may have auto functions enabled. To set the gain value to a specific value,
                 // the Gain Auto function must be disabled first (if gain auto is available).
-                camera.Parameters[PLCamera.GainAuto].TrySetValue(PLCamera.GainAuto.Off); // Set GainAuto to Off if it is writable.
-
-                if (camera.GetSfncVersion() < Sfnc2_0_0)
-                {
-                    // Some parameters have restrictions. You can use GetIncrement/GetMinimum/GetMaximum to make sure you set a valid value.                              
+                // Set GainAuto to Off if it is writable.
+                baslerCamera.Parameters[PLCamera.GainAuto].TrySetValue(PLCamera.GainAuto.Off); 
+                if (baslerCamera.GetSfncVersion() < Sfnc2_0_0) {
+                    // 网口相机
+                    // Some parameters have restrictions. 
+                    // You can use GetIncrement/GetMinimum/GetMaximum to make sure you set a valid value.                              
                     // In previous SFNC versions, GainRaw is an integer parameter.
                     // integer parameter的数据，设置之前，需要进行有效值整合，否则可能会报错
-                    long min = camera.Parameters[PLCamera.GainRaw].GetMinimum();
-                    long max = camera.Parameters[PLCamera.GainRaw].GetMaximum();
-                    long incr = camera.Parameters[PLCamera.GainRaw].GetIncrement();
-                    if (value < min)
-                    {
+                    long min = baslerCamera.Parameters[PLCamera.GainRaw].GetMinimum();
+                    long max = baslerCamera.Parameters[PLCamera.GainRaw].GetMaximum();
+                    long incr = baslerCamera.Parameters[PLCamera.GainRaw].GetIncrement();
+                    if (value < min) {
                         value = min;
-                    }
-                    else if (value > max)
-                    {
+                    } else if (value > max) {
                         value = max;
-                    }
-                    else
-                    {
+                    } else {
                         value = min + (((value - min) / incr) * incr);
                     }
-                    camera.Parameters[PLCamera.GainRaw].SetValue(value);
+                    baslerCamera.Parameters[PLCamera.GainRaw].SetValue(value);
 
                     //// Or,here, we let pylon correct the value if needed.
                     //camera.Parameters[PLCamera.GainRaw].SetValue(value, IntegerValueCorrection.Nearest);
-                }
-                else // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
-                {
+                } else {
+                    // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
                     // In SFNC 2.0, Gain is a float parameter.
-                    camera.Parameters[PLUsbCamera.Gain].SetValue(value);
+                    baslerCamera.Parameters[PLUsbCamera.Gain].SetValue(value);
                 }
             }
-            catch (Exception e)
-            {
-                ShowException(e);
-            }
-        }
-
-
-
-
-
-
-
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-namespace PylonLiveViewer
-{
-    public class BaslerCam
-    {
-        /*****************************************************/
-
-
-        /// <summary>
-        /// 开始连续采集
-        /// </summary>
-        //public bool StartGrabbing()
-        //{
-        //    try
-        //    {
-        //        if (camera.StreamGrabber.IsGrabbing)
-        //        {
-        //            MessageBox.Show("相机当前正处于采集状态！", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //            return false;
-        //        }
-        //        else
-        //        {
-        //            camera.Parameters[PLCamera.AcquisitionMode].SetValue(PLCamera.AcquisitionMode.Continuous);
-        //            camera.StreamGrabber.Start(GrabStrategy.LatestImages, GrabLoop.ProvidedByStreamGrabber);
-        //            stopWatch.Restart();    // ****  重启采集时间计时器   ****
-        //            return true;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        ShowException(e);
-        //        return false;
-        //    }
-        //}
-
-        
-        /*********************************************************/
-
-
-        /// <summary>
-        /// 设置增益
-        /// </summary>
-        /// <param name="value"></param>
-        public void SetGain(long value)
-        {
-            try
-            {
-                // Some camera models may have auto functions enabled. To set the gain value to a specific value,
-                // the Gain Auto function must be disabled first (if gain auto is available).
-                camera.Parameters[PLCamera.GainAuto].TrySetValue(PLCamera.GainAuto.Off); // Set GainAuto to Off if it is writable.
-
-                if (camera.GetSfncVersion() < Sfnc2_0_0)
-                {
-                    // Some parameters have restrictions. You can use GetIncrement/GetMinimum/GetMaximum to make sure you set a valid value.                              
-                    // In previous SFNC versions, GainRaw is an integer parameter.
-                    // integer parameter的数据，设置之前，需要进行有效值整合，否则可能会报错
-                    long min = camera.Parameters[PLCamera.GainRaw].GetMinimum();
-                    long max = camera.Parameters[PLCamera.GainRaw].GetMaximum();
-                    long incr = camera.Parameters[PLCamera.GainRaw].GetIncrement();
-                    if (value < min)
-                    {
-                        value = min;
-                    }
-                    else if (value > max)
-                    {
-                        value = max;
-                    }
-                    else
-                    {
-                        value = min + (((value - min) / incr) * incr);
-                    }
-                    camera.Parameters[PLCamera.GainRaw].SetValue(value);
-
-                    //// Or,here, we let pylon correct the value if needed.
-                    //camera.Parameters[PLCamera.GainRaw].SetValue(value, IntegerValueCorrection.Nearest);
-                }
-                else // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
-                {
-                    // In SFNC 2.0, Gain is a float parameter.
-                    camera.Parameters[PLUsbCamera.Gain].SetValue(value);
-                }
-            }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 ShowException(e);
             }
         }
 
         /// <summary>
-        /// 获取最小最大增益
+        /// 获取相机最小最大增益
         /// </summary>
         public void GetMinMaxGain()
         {
-            try
-            {
-                if (camera.GetSfncVersion() < Sfnc2_0_0)
-                {
-                    minGain = camera.Parameters[PLCamera.GainRaw].GetMinimum();
-                    maxGain = camera.Parameters[PLCamera.GainRaw].GetMaximum();
-                }
-                else
-                {
-                    minGain = (long)camera.Parameters[PLUsbCamera.Gain].GetMinimum();
-                    maxGain = (long)camera.Parameters[PLUsbCamera.Gain].GetMaximum();
+            try {
+                if (baslerCamera.GetSfncVersion() < Sfnc2_0_0) {
+                    minGain = baslerCamera.Parameters[PLCamera.GainRaw].GetMinimum();
+                    maxGain = baslerCamera.Parameters[PLCamera.GainRaw].GetMaximum();
+                } else {
+                    minGain = (long)baslerCamera.Parameters[PLUsbCamera.Gain].GetMinimum();
+                    maxGain = (long)baslerCamera.Parameters[PLUsbCamera.Gain].GetMaximum();
                 }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 ShowException(e);
             }
         }
@@ -501,51 +383,38 @@ namespace PylonLiveViewer
         /// </summary>
         public void SetFreerun()
         {
-            try
-            {
+            try {
                 // Set an enum parameter.
-                if (camera.GetSfncVersion() < Sfnc2_0_0)
-                {
-                    if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart))
+                if (baslerCamera.GetSfncVersion() < Sfnc2_0_0) {
+                    if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart))
                     {
-                        if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart))
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-                        }
-                        else
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                        if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart)) {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                        } else {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
                         }
                     }
-                }
-                else // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
-                {
-                    if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart))
-                    {
-                        if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart))
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-                        }
-                        else
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                } else {
+                    // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
+                    if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart)) {
+                        if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart)) {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                        } else {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
                         }
                     }
                 }
                 stopWatch.Restart();    // ****  重启采集时间计时器   ****
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 ShowException(e);
             }
         }
@@ -555,55 +424,41 @@ namespace PylonLiveViewer
         /// </summary>
         public void SetSoftwareTrigger()
         {
-            try
-            {
+            try {
                 // Set an enum parameter.
-                if (camera.GetSfncVersion() < Sfnc2_0_0)
-                {
-                    if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart))
-                    {
-                        if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart))
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
-                        }
-                        else
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
+                if (baslerCamera.GetSfncVersion() < Sfnc2_0_0) {
+                    if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart)) {
+                        if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart)) {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
+                        } else {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
                         }
                     }
-                }
-                else // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
-                {
-                    if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart))
-                    {
-                        if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart))
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
-                        }
-                        else
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
+                }  else {
+                    // USB3 Vision cameras
+                    if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart)) {
+                        if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart)) {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
+                        } else {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Software);
                         }
                     }
                 }
                 stopWatch.Reset();    // ****  重置采集时间计时器   ****
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 ShowException(e);
             }
         }
@@ -613,16 +468,14 @@ namespace PylonLiveViewer
         /// </summary>
         public void SendSoftwareExecute()
         {
-            try
-            {
-                if (camera.WaitForFrameTriggerReady(1000, TimeoutHandling.ThrowException))
-                {
-                    camera.ExecuteSoftwareTrigger();
+            try {
+            try {
+                if (baslerCamera.WaitForFrameTriggerReady(1000, TimeoutHandling.ThrowException)) {
+                    baslerCamera.ExecuteSoftwareTrigger();
                     stopWatch.Restart();    // ****  重启采集时间计时器   ****
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 ShowException(exception);
             }
         }
@@ -632,72 +485,55 @@ namespace PylonLiveViewer
         /// </summary>
         public void SetExternTrigger()
         {
-            try
-            {
-                if (camera.GetSfncVersion() < Sfnc2_0_0)
-                {
-                    if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart))
-                    {
-                        if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart))
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
-                        }
-                        else
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
+            try {
+                if (baslerCamera.GetSfncVersion() < Sfnc2_0_0) {
+                    if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart)) {
+                        if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart)) {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
+                        } else {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.AcquisitionStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
                         }
                     }
-
                     //Sets the trigger delay time in microseconds.
-                    camera.Parameters[PLCamera.TriggerDelayAbs].SetValue(0);        // 设置触发延时
-
+                    baslerCamera.Parameters[PLCamera.TriggerDelayAbs].SetValue(0);        // 设置触发延时
                     //Sets the absolute value of the selected line debouncer time in microseconds
-                    camera.Parameters[PLCamera.LineSelector].TrySetValue(PLCamera.LineSelector.Line1);
-                    camera.Parameters[PLCamera.LineMode].TrySetValue(PLCamera.LineMode.Input);
-                    camera.Parameters[PLCamera.LineDebouncerTimeAbs].SetValue(0);       // 设置去抖延时，过滤触发信号干扰
+                    baslerCamera.Parameters[PLCamera.LineSelector].TrySetValue(PLCamera.LineSelector.Line1);
+                    baslerCamera.Parameters[PLCamera.LineMode].TrySetValue(PLCamera.LineMode.Input);
+                    baslerCamera.Parameters[PLCamera.LineDebouncerTimeAbs].SetValue(0);       // 设置去抖延时，过滤触发信号干扰
 
-                }
-                else // For SFNC 2.0 cameras, e.g. USB3 Vision cameras
-                {
-                    if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart))
-                    {
-                        if (camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart))
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
-
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
-                        }
-                        else
-                        {
-                            camera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
-                            camera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
-                            camera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
+                } else {
+                    // USB3 Vision cameras
+                    if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart)) {
+                        if (baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart)) {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.Off);
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
+                        } else {
+                            baslerCamera.Parameters[PLCamera.TriggerSelector].TrySetValue(PLCamera.TriggerSelector.FrameBurstStart);
+                            baslerCamera.Parameters[PLCamera.TriggerMode].TrySetValue(PLCamera.TriggerMode.On);
+                            baslerCamera.Parameters[PLCamera.TriggerSource].TrySetValue(PLCamera.TriggerSource.Line1);
                         }
                     }
 
                     //Sets the trigger delay time in microseconds.//float
-                    camera.Parameters[PLCamera.TriggerDelay].SetValue(0);       // 设置触发延时
-
+                    baslerCamera.Parameters[PLCamera.TriggerDelay].SetValue(0);       // 设置触发延时
                     //Sets the absolute value of the selected line debouncer time in microseconds
-                    camera.Parameters[PLCamera.LineSelector].TrySetValue(PLCamera.LineSelector.Line1);
-                    camera.Parameters[PLCamera.LineMode].TrySetValue(PLCamera.LineMode.Input);
-                    camera.Parameters[PLCamera.LineDebouncerTime].SetValue(0);       // 设置去抖延时，过滤触发信号干扰
+                    baslerCamera.Parameters[PLCamera.LineSelector].TrySetValue(PLCamera.LineSelector.Line1);
+                    baslerCamera.Parameters[PLCamera.LineMode].TrySetValue(PLCamera.LineMode.Input);
+                    baslerCamera.Parameters[PLCamera.LineDebouncerTime].SetValue(0);       // 设置去抖延时，过滤触发信号干扰
 
                 }
                 stopWatch.Reset();    // ****  重置采集时间计时器   ****
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 ShowException(e);
             }
         }
@@ -711,76 +547,56 @@ namespace PylonLiveViewer
         /// <param name="height">图像高</param>
         public void SaveImage(string path, IntPtr address, int width, int height, bool isColor)
         {
-            if (isColor == false)
-            {
-                ImagePersistence.Save(ImageFileFormat.Bmp, path, address, width * height, PixelType.Mono8, width, height, 0, ImageOrientation.TopDown);
-            }
-            else
-            {
-                ImagePersistence.Save(ImageFileFormat.Bmp, path, address, width * height * 3, PixelType.BGR8packed, width, height, 0, ImageOrientation.TopDown);
+            if (isColor == false) {
+                ImagePersistence.Save(ImageFileFormat.Bmp, path, address, width * height, 
+                    PixelType.Mono8, width, height, 0, ImageOrientation.TopDown);
+            } else {
+                ImagePersistence.Save(ImageFileFormat.Bmp, path, address, width * height * 3, 
+                    PixelType.BGR8packed, width, height, 0, ImageOrientation.TopDown);
             }
 
         }
 
 
-        /****************************************************/
-
-
-        /****************  图像响应事件函数  ****************/
-
-
+        /****************  图像响应事件回调函数  ****************/
         // 相机取像回调函数.
         private void OnImageGrabbed(Object sender, ImageGrabbedEventArgs e)
         {
-            try
-            {
-                // Acquire the image from the camera. Only show the latest image. The camera may acquire images faster than the images can be displayed.
-
+            try {
+                // Acquire the image from the camera. 
+                // Only show the latest image. The camera may acquire images faster than the images can be displayed.
                 // Get the grab result.
                 IGrabResult grabResult = e.GrabResult;
-
                 // Check if the image can be displayed.
-                if (grabResult.GrabSucceeded)
-                {
+                if (grabResult.GrabSucceeded) {
                     grabTime = stopWatch.ElapsedMilliseconds;
                     // 抛出计算采集时间处理事件
                     eventComputeGrabTime(grabTime);
-
                     // 判断是否是黑白图片格式
-                    if (grabResult.PixelTypeValue == PixelType.Mono8)
-                    {
-                        if (latestFrameAddress == IntPtr.Zero)
-                        {
+                    if (grabResult.PixelTypeValue == PixelType.Mono8) {
+                        if (latestFrameAddress == IntPtr.Zero) {
                             latestFrameAddress = Marshal.AllocHGlobal((Int32)(payloadSize));
                         }
                         converter.OutputPixelFormat = PixelType.Mono8;
                         converter.Convert(latestFrameAddress, payloadSize, grabResult);
-
                         isColor = false;
                     }
                     eventProcessImage(isColor, imageWidth, imageHeight, latestFrameAddress);
-
                     // pylon 自带窗体显示图像
                     //ImageWindow.DisplayImage(numWindowIndex, grabResult);
-                }
-                else
-                {
-                    MessageBox.Show("Grab faild!\n" + grabResult.ErrorDescription, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } else {
+                    MessageBox.Show("Grab faild!\n" + grabResult.ErrorDescription, 
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 ShowException(exception);
             }
-            finally
-            {
+            finally {
                 // Dispose the grab result if needed for returning it to the grab loop.
                 e.DisposeGrabResultIfClone();
             }
         }
-
-        /****************************************************/
-
 
         /// <summary>
         /// 掉线重连回调函数
@@ -789,61 +605,54 @@ namespace PylonLiveViewer
         /// <param name="e"></param>
         private void OnConnectionLost(Object sender, EventArgs e)
         {
-            try
-            {
+            try {
                 const int cTimeOutMs = 20;
-
                 System.Threading.Thread.Sleep(100);
-                camera.Close();
-
-                for (int i = 0; i < 1000; i++)
-                {
-                    try
-                    {
-                        camera.Open(cTimeOutMs, TimeoutHandling.ThrowException);
-                        if (camera.IsOpen)
-                        {
-                            MessageBox.Show("已重新连接上UserID为“" + strUserID + "”的相机！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                baslerCamera.Close();
+                for (int i = 0; i < 1000; i++) {
+                    try {
+                        baslerCamera.Open(cTimeOutMs, TimeoutHandling.ThrowException);
+                        if (baslerCamera.IsOpen) {
+                            MessageBox.Show("已重新连接上UserID为 ：" + strUserID + " 的相机！",
+                                "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             break;
                         }
                         //Thread.Sleep(200);
                     }
-                    catch
-                    {
-                        MessageBox.Show("请重新连接UserID为“" + strUserID + "”的相机！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    catch {
+                        MessageBox.Show("请重新连接UserID为 ：" + strUserID + " 的相机！",
+                            "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
-
-                if (camera == null)
-                {
-                    MessageBox.Show("重连超时20s:未识别到UserID为“" + strUserID + "”的相机！", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (baslerCamera == null) {
+                    MessageBox.Show("重连超时20s:未识别到UserID为 ：" + strUserID + " 的相机！",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 SetHeartBeatTime(5000);
-                //camera.Parameters[PLCamera.AcquisitionFrameRateEnable].SetValue(true);  // 限制相机帧率
-                //camera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(90);
-                //camera.Parameters[PLCameraInstance.MaxNumBuffer].SetValue(10);          // 设置内存中接收图像缓冲区大小
-
-                imageWidth = (int)camera.Parameters[PLCamera.Width].GetValue();               // 获取图像宽 
-                imageHeight = (int)camera.Parameters[PLCamera.Height].GetValue();              // 获取图像高
+                //baslerCamera.Parameters[PLCamera.AcquisitionFrameRateEnable].SetValue(true);  // 限制相机帧率
+                //baslerCamera.Parameters[PLCamera.AcquisitionFrameRateAbs].SetValue(90);
+                //baslerCamera.Parameters[PLCameraInstance.MaxNumBuffer].SetValue(10);          // 设置内存中接收图像缓冲区大小
+                imageWidth = (int)baslerCamera.Parameters[PLCamera.Width].GetValue();               // 获取图像宽 
+                imageHeight = (int)baslerCamera.Parameters[PLCamera.Height].GetValue();              // 获取图像高
                 GetMinMaxExposureTime();
                 GetMinMaxGain();
-
-                //camera.StreamGrabber.Start();
+                //baslerCamera.StreamGrabber.Start();
 
             }
-            catch (Exception exception)
-            {
+            catch (Exception exception) {
                 ShowException(exception);
             }
         }
 
-        // Shows exceptions in a message box.
-        private void ShowException(Exception exception)
-        {
-            MessageBox.Show("Exception caught:\n" + exception.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+
+
     }
 }
+
+
+
+
+
 
