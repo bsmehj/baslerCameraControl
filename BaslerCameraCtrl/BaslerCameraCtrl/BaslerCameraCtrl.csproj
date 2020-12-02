@@ -40,6 +40,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -52,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaslerCamera\BaslerCameraClass.cs" />
+    <Compile Include="BaslerCamera\BaslerCameraDoNet.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -60,6 +62,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserMethodClass\FileProcessClass.cs" />
+    <Compile Include="UserMethodClass\ImageProcessClass.cs" />
+    <Compile Include="UserMethodClass\IniFileOperateClass.cs" />
+    <Compile Include="UserMethodClass\RegisterOperaterClass.cs" />
+    <Compile Include="UserMethodClass\UserApiClass.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -84,6 +91,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BaslerCamera\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
